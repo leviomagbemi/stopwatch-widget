@@ -1,0 +1,110 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+ul{
+  list-style: none;
+}
+
+.container{
+  width: 400px;
+  height: auto;
+  margin: 5rem auto;
+  padding: 2rem;
+  background-color: #050137;
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.clock{
+  width: 150px;
+  height: 150px;
+  background-color: rgba(255, 255, 255, 0.174);
+  color: rgb(250, 217, 0);
+  margin:2rem auto;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  position:relative;
+}
+
+ .spinner{
+  width: 115px;
+  height: 115px;
+  border: none;
+  border-radius: 50%;
+  position: absolute;
+ }
+
+ .spinner2{
+  width: 10px;
+  height: 10px;
+  background-color: rgb(250, 217, 0);
+  border-radius: 50%;
+  position: absolute;
+ }
+
+.milliseconds-container{
+  margin-bottom: 10px;
+}
+
+#minutes{
+display: none;
+}
+
+#minutes::after{
+  content: ":";
+  }
+
+#hours{
+ display: none;
+}
+
+#hours::after{
+  content: ":";
+  }
+
+.table {
+ background-color:rgba(255, 255, 255, 0.174);
+ width: 300px;
+ padding: 1rem;
+ border-radius: 16px;
+ color:#fff;
+ margin-bottom: 2rem;
+ display: flex;
+ flex-direction: column;
+ align-items: center;
+}
+
+.head{
+  display: flex;
+  gap:5rem;
+  margin-bottom: 1rem;
+  font-weight: bold;
+ }
+
+ .body{
+  display: flex;
+  gap:7rem;
+ }
+
+ .btns{
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  color: #050137;
+ }
+
+ #start,#edit,#reset{
+  padding: 1.5rem 1rem;
+  background-color: rgb(250, 217, 0);
+  border: none;
+  border-radius: 4px;
+ }
+

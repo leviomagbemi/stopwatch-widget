@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://kit.fontawesome.com/edec7f25e3.js" crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="style.css">
+  <title>Stop Watch</title>
+</head>
+<body>
+
+  <div class="container">
+  <div class="clock">
+    
+
+    <div>
+      <h1><span id="hours">0</span><span id="minutes">0</span><span id="seconds">0</span></h1>
+    </div>
+   
+    <div class="milliseconds-container">
+      <span id="milliseconds">00</span>
+    </div>
+    <span class="spinner">
+      <span class="spinner2"></span>
+    </span>
+    
+  </div>
+
+  
+
+  <div class="table">
+    <div class="head">
+      <div>Count</div>
+      <div>Time</div>
+    </div>
+
+    <div class="body">
+      <div>
+        <ul class="count">
+
+        </ul>
+      </div>
+      <div><ul class="time">
+  
+      </ul></div>
+    </div>
+  </div>
+  
+  <div class="btns">
+    <i class="fas fa-undo-alt fa-lg" id="reset"></i></i>
+   <i class="fas fa-play fa-lg" id="start"></i>
+   <i class="fas fa-stopwatch fa-lg" id="edit"></i>
+  </div>
+  
+  </div>
+  
+
+  <script src="app.js"></script>
+</body>
+</html>
