@@ -1,127 +1,216 @@
-//UI variables
-const clock = document.querySelector('.clock');
-const start = document.querySelector('#start');
-const reset = document.querySelector('#reset');
-const edit = document.querySelector('#edit');
-const milliSeconds = document.querySelector('#milliseconds');
-const spinner = document.querySelector('.spinner');
-const table = document.querySelector('.table');
-const count = document.querySelector('.count');
-const displayTime = document.querySelector('.time');
-const seconds = document.querySelector('#seconds');
-const minutes = document.querySelector('#minutes');
-const hours = document.querySelector('#hours');
+// lottie animation object and set its properties
+let spinnerContainer = getElement('spinner-container');
+let spinnerAnimation = bodymovin.loadAnimation({
+  container: spinnerContainer,
+  renderer: 'svg',
+  loop: true,
+  autoplay: true,
+  path: 'spinner.json',
+});
 
-//count number
-let countNumber = 1;
+//ui variables
+const resetBtn = getElement('reset-btn');
+const startPauseBtn = getElement('startPause-btn');
+const timeStampBtn = getElement('timeStamp-btn');
+const hours = getElement('hours');
+const mins = getElement('mins');
+const secs = getElement('secs');
+const ms = getElement('ms');
 
-//spinner rotation value
-let spinnerRotationVal = 1;
+//timer init values
+let h = 0;
+let m = 0;
+let s = 0;
+let mss = 0;
 
-//setInterval variable
-let timer;
+// timer rates
+let hourRate;
+let minsRate;
+let secsRate;
+let msRate;
+let tableTimeRate;
 
-//initial state
-init();
+//table counter
+let countNo = 1;
 
-//event listeners
-function loadEventListeners(){
-start.addEventListener('click', startTimer);
-reset.addEventListener('click', resetTimer);
-edit.addEventListener('click', editState);
-}
+//add zero to seconds and milliseconds when the dom loads
+document.addEventListener('DOMContentLoaded', () => {
+  secs.textContent = s < 10 ? `0${s}` : s;
+  ms.textContent = mss < 10 ? `0${mss}` : mss;
+});
 
-//set inteval function
-function myTimer(){
-updateTimer();
+//load all event listeners
+function loadAllEventListeners() {
+  //start timer event
+  startPauseBtn.addEventListener('click', startTimer);
+
+  //reset timer event
+  resetBtn.addEventListener('click', resetTimer);
+
+  //time stamp event
+  timeStampBtn.addEventListener('click', getTimeStamp);
 }
 
 //start timer
-function startTimer(){
-//display edit and reset button  
-reset.style.display = 'inline';
-edit.style.display = 'inline';
-
-//start timer
-if(start.className === 'fas fa-play fa-lg')  
-{timer = setInterval(myTimer, 11.1);
- start.classList.replace('fa-play', 'fa-pause'); 
-}else{
-  //stop timer
-  stopTimer(timer);
-  start.classList.replace('fa-pause', 'fa-play');
-}
-}
-
-// update timer
-function updateTimer(){
-  milliSeconds.textContent++
-
-  if(parseInt(milliSeconds.textContent) === 90){
-    milliSeconds.textContent = 0;
-    seconds.textContent++;
-  }else if(parseInt(seconds.textContent) === 60){
-    seconds.textContent = 0;
-    minutes.textContent++;
-    minutes.style.display = 'inline';
-  }else if(parseInt(minutes.textContent) === 60){
-    minutes.textContent = 0;
-    hours.textContent++;
-    hours.style.display = 'inline';
-  }
-
-  //rotate spinner
-  spinner.style.transform = `rotate(${spinnerRotationVal++}deg)`;
+function startTimer() {
+  //check if start button class has fa-play and update timer
+  startPauseBtn.firstElementChild.classList.contains('fa-play')
+    ? //update timer
+      (updateMs(),
+      updateSecs(),
+      updateMins(),
+      updateHours(),
+      //change play icon to pause icon
+      startPauseBtn.firstElementChild.classList.replace('fa-play', 'fa-pause'),
+      //display spinner
+      getElement('spinner-container').classList.remove('d-none'))
+    : //clear interval to pause timer
+      (clearInt(hourRate, minsRate, secsRate, msRate),
+      //change pause icon to play icon
+      startPauseBtn.firstElementChild.classList.replace('fa-pause', 'fa-play'),
+      //hide spinner
+      getElement('spinner-container').classList.add('d-none'));
 }
 
 //reset timer
-function resetTimer(){
- //stop timer 
- stopTimer(timer);
+function resetTimer() {
+  //clear interval
+  clearInt(hourRate, minsRate, secsRate, msRate);
 
- //reset milliseconds,seconds,minutes,hours back to zero
- milliSeconds.textContent = '00';
- seconds.textContent = 0;
- minutes.textContent = 0;
- hours.textContent = 0;
- displayTime.innerHTML = '';
- count.innerHTML = '';
+  //reset timer values back to zero
+  h = 0;
+  m = 0;
+  s = 0;
+  mss = 0;
 
- //reset to initial state
- init();
-
- //reset start button
- start.classList.replace('fa-pause', 'fa-play');
-}
-
-//edit timer
-function editState(){  
-  //display spinner
-  spinner.style.display = 'block';
+  //set textcontent back to zero
+  setTextContent(hours, mins, secs, ms);
 
   //display table
-  table.style.display = 'flex';
+  getElement('table').classList.add('d-none');
 
-  //set table values
-  count.innerHTML += `<li>#${num++}</li>`;
-  displayTime.innerHTML +=`<li>${hours.textContent}:${minutes.textContent}:${seconds.textContent}:${milliSeconds.textContent}</li>`;
+  //change play icon to pause
+  startPauseBtn.firstElementChild.classList.replace('fa-pause', 'fa-play');
+
+  // set tbody innerHtml to nothing
+  getElement('table-body').innerHTML = '';
+
+  //reset table count
+  countNo = 1;
+
+  //display spinner
+  getElement('spinner-container').classList.add('d-none');
 }
 
-//initial state
-function init(){
-  reset.style.display = 'none';
-  edit.style.display = 'none';
-  table.style.display = 'none';
-  spinner.style.display = 'none';
-  minutes.style.display = 'none';
-  hours.style.display = 'none';
-  num = 1;  
+//get time stamp
+function getTimeStamp() {
+  //stop previous time stamp from counting
+  clearInterval(tableTimeRate);
+
+  //call create tbody content func
+  tableContent();
 }
 
-//stop timer
-function stopTimer(stop){
-clearInterval(stop);
+//update milliseconds
+const updateMs = () => {
+  //increase milliseconds value
+  msRate = setInterval(() => {
+    mss++;
+
+    //set milliseconds back to zero if minutes equals to 60
+    mss === 90 ? (mss = 0) : mss;
+
+    //set milliseconds textcontent to increasing value
+    ms.textContent = mss < 10 ? `0${mss}` : mss;
+  });
+};
+
+//update seconds
+const updateSecs = () => {
+  //increase seconds value every 1s
+  secsRate = setInterval(() => {
+    s++;
+
+    //set seconds back to zero if minutes equals to 60
+    s === 60 ? (s = 0) : s;
+
+    //set seconds textcontent to increasing value
+    secs.textContent = s < 10 ? `0${s}` : s;
+  }, 1000);
+};
+
+//update minutes
+const updateMins = () => {
+  //increase minutes value every 1s
+  minsRate = setInterval(() => {
+    mins.classList.remove('d-none');
+    m++;
+    //set minutes back to zero if minutes equals to 60
+    m === 60 ? (m = 0) : m;
+    //set minutes textcontent to increasing value
+    mins.textContent = `${m}:`;
+  }, 60000);
+};
+
+//update hours
+const updateHours = () => {
+  //increase hours value every 1hr
+  hourRate = setInterval(() => {
+    hours.classList.remove('d-none');
+    h++;
+    //set hours textcontent to increasing value
+    hours.textContent = `${h}:`;
+  }, 3600000);
+};
+
+//createTable content
+function tableContent() {
+  //create row element
+  const row = document.createElement('tr');
+
+  //create count and timestamp
+  const count = document.createElement('td');
+  const timeStamp = document.createElement('td');
+
+  //set count to count number and increase count number on each click
+  count.textContent = countNo++;
+
+  //update time count
+  tableTimeRate = setInterval(() => {
+    timeStamp.textContent = `${h}:${m}:${s}:${mss}`;
+  });
+
+  // put count and timestamp inside row
+  row.appendChild(count);
+  row.appendChild(timeStamp);
+
+  //insert row to table
+  getElement('table-body').insertAdjacentElement('afterbegin', row);
+
+  //display table
+  getElement('table').classList.remove('d-none');
 }
 
-//load event listeners
-loadEventListeners();
+//reset hour, mins, secs and ms text content
+function setTextContent(hour, mins, secs, ms) {
+  hour.textContent = '';
+  mins.textContent = '';
+  secs.textContent = `0${s}`;
+  ms.textContent = `0${mss}`;
+}
+
+//clear interval
+function clearInt(id1, id2, id3, id4) {
+  clearInterval(id1);
+  clearInterval(id2);
+  clearInterval(id3);
+  clearInterval(id4);
+}
+
+//get elements
+function getElement(id) {
+  return document.getElementById(id);
+}
+
+//call load eventlistener
+loadAllEventListeners();
